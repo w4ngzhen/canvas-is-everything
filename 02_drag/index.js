@@ -34,6 +34,8 @@ let rect = {
   width: 80,
   height: 60,
   selected: false,
+  // hover效果
+  hover: false,
 };
 
 // 3 获取canvas元素，准备在步骤
@@ -57,6 +59,9 @@ canvasEle.addEventListener('mousemove', event => {
 
   // 5.3 更新当前鼠标位置
   mousePosition = utils.getMousePositionInCanvas(event, canvasEle);
+
+  // 5.3.1 判断鼠标是否悬浮在矩形
+  rect.hover = utils.isPointInRect(rect, mousePosition);
 
   // 5.4 判断是否鼠标左键点击且有矩形被选中
   // https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/buttons
@@ -108,8 +113,21 @@ let ctx = canvasEle.getContext('2d');
       ctx.clearRect(0, 0, canvasEle.width, canvasEle.height);
       // 暂存当前ctx的状态
       ctx.save();
-      // 设置画笔颜色：黑色
-      ctx.strokeStyle = rect.selected ? '#F00' : '#000';
+
+      // 被点击选中：正红色，指针为 'move'
+      // 悬浮：带50%透明的正红色，指针为 'pointer'
+      // 普通下为黑色，指针为 'default'
+      if (rect.selected) {
+        ctx.strokeStyle = '#FF0000';
+        canvasEle.style.cursor = 'move';
+      } else if (rect.hover) {
+        ctx.strokeStyle = 'rgba(255, 0, 0, 0.5)';
+        canvasEle.style.cursor = 'pointer';
+      } else {
+        ctx.strokeStyle = '#000';
+        canvasEle.style.cursor = 'default';
+      }
+
       // 矩形所在位置画一个黑色框的矩形
       ctx.strokeRect(rect.x - 0.5, rect.y - 0.5, rect.width, rect.height);
       // 恢复ctx的状态
